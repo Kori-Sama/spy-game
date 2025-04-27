@@ -1,0 +1,23 @@
+{
+    "name": "spy-game",
+    "version": "1.0.0",
+    "description": "间谍猜词游戏",
+    "private": true,
+    "scripts": {
+        "install:all": "npm run install:server && npm run install:web",
+        "install:server": "cd server && pnpm install",
+        "install:web": "cd web && pnpm install",
+        "dev:server": "cd server && pnpm dev",
+        "dev:web": "cd web && pnpm dev",
+        "dev": "concurrently \"npm run dev:server\" \"npm run dev:web\"",
+        "build:server": "cd server && pnpm build",
+        "build:web": "cd web && pnpm build",
+        "build": "npm run build:server && npm run build:web",
+        "start:server": "cd server && pnpm start",
+        "start:web": "cd web && pnpm preview",
+        "start": "concurrently \"npm run start:server\" \"npm run start:web\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}

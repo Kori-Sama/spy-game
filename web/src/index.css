@@ -1,0 +1,78 @@
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  background-color: #f5f5f5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 移动端优化样式 */
+html {
+  font-size: 16px;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+
+  .page-container {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .player-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
+/* 避免在小屏幕上按钮过小 */
+button {
+  min-height: 44px;
+  padding: 8px 16px;
+  touch-action: manipulation;
+}
+
+/* 避免文本输入框过小 */
+input {
+  min-height: 44px;
+  font-size: 16px;
+  /* 防止iOS上缩放 */
+}
+
+/* 修复iOS上的点击延迟问题 */
+a,
+button,
+input,
+textarea {
+  touch-action: manipulation;
+}
