@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    container_name: spy-game-server
+    restart: unless-stopped
+    volumes:
+      - ./server/spy-game.db:/app/spy-game.db
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CORS_ORIGIN=http://localhost:80
+
+  web:
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile
+    container_name: spy-game-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://server:3001
+    depends_on:
+      - server

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { GameRoom, PlayerRole, RoomConfig } from "../../../shared/types";
 import { useSocketStore } from "./socketStore";
 import axios from "axios";
+import { API_URL } from "./constant";
 
 // Add a flag to track if events are already set up
 let eventsSetup = false;
@@ -50,7 +51,7 @@ export const useRoomStore = create<RoomState>((set, get) => ({
 
   fetchRooms: async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/rooms");
+      const response = await axios.get(`${API_URL}/api/rooms`);
       set({ rooms: response.data.rooms || [] });
     } catch (error) {
       console.error("获取房间列表失败:", error);
