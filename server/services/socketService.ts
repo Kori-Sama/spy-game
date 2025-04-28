@@ -110,6 +110,8 @@ export function initSocketService(
         // 将socket离开房间频道
         socket.leave(data.roomId);
 
+        await roomService.leaveRoom(data.roomId, socket.data.user.id);
+
         // 通知房间内所有用户有玩家离开
         io.to(data.roomId).emit("player_left", {
           room: (await roomService.getRoomById(data.roomId)) || {

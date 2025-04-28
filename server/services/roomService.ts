@@ -657,6 +657,43 @@ export async function removePlayer(
   return room;
 }
 
+export async function leaveRoom(
+  roomId: string,
+  userId: string
+): Promise<GameRoom> {
+  const db = getDB();
+
+  // 检查房间是否存在
+  const room = await getRoomById(roomId);
+
+  if (!room) {
+    throw new Error("房间不存在");
+  }
+
+  // 检查用户是否在房间中
+  const playerExists = await db.get(
+    "SELECT 1 FROM players WHERE user_id = ? AND room_id = ?",
+    userId,
+    roomId
+  );
+
+  if (!playerExists) {
+    throw new Error("用户不在房间中");
+  }
+
+  // 从数据库中删除玩家
+  await db.run(
+    "DELETE FROM players WHERE user_id = ? AND room_id = ?",
+    userId,
+    roomId
+  );
+
+  // 从内存中删除玩家
+  delete room.players[userId];
+
+  return room;
+}
+
 // 检查游戏是否结束
 function checkGameOver(room: GameRoom): {
   gameOver: boolean;
