@@ -5,20 +5,17 @@ WORKDIR /app
 
 # 复制共享类型定义和所有项目文件
 COPY shared/ /app/shared/
-COPY web/package.json web/pnpm-lock.yaml /app/web/
+COPY web/package.json  /app/web/
 
 WORKDIR /app/web
 # 安装依赖
-RUN npm install -g pnpm
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PATH:$PNPM_HOME
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install 
+RUN npm install -g pnpm && npm install -g typescript
 
 # 复制前端源代码
 COPY web/ /app/web/
 
 # 构建前端应用
-RUN pnpm build
+RUN tsc -b && vite
 
 # 运行阶段
 FROM nginx:stable-alpine
