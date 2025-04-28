@@ -729,6 +729,38 @@ function checkGameOver(room: GameRoom): {
   return { gameOver: false };
 }
 
+export async function deleteRoom(roomId: string): Promise<boolean> {
+  const db = getDB();
+
+  // 检查房间是否存在
+  const room = await getRoomById(roomId);
+
+  if (!room) {
+    return false;
+  }
+
+  // 删除房间内的所有玩家
+  await db.run("DELETE FROM players WHERE room_id = ?", roomId);
+
+  // 删除房间
+  await db.run("DELETE FROM rooms WHERE id = ?", roomId);
+
+  return true;
+}
+
+export async function clearRooms(): Promise<void> {
+  const db = getDB();
+
+  // 删除所有房间
+  await db.run("DELETE FROM rooms");
+
+  // 删除所有玩家
+  await db.run("DELETE FROM players");
+
+  // 删除所有投票记录
+  await db.run("DELETE FROM votes");
+}
+
 // 工具函数：随机打乱数组
 function shuffleArray<T>(array: T[]): T[] {
   for (let i = array.length - 1; i > 0; i--) {

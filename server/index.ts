@@ -117,6 +117,42 @@ router.get("/api/rooms/:roomId", async (ctx) => {
   }
 });
 
+router.delete("/api/rooms/:roomId", async (ctx) => {
+  try {
+    const { roomId } = ctx.params;
+    const result = await roomService.deleteRoom(roomId);
+
+    if (result) {
+      ctx.body = {
+        success: true,
+        message: "房间删除成功",
+      };
+    } else {
+      ctx.status = 404;
+      ctx.body = { success: false, message: "房间不存在" };
+    }
+  } catch (error) {
+    console.error("删除房间错误:", error);
+    ctx.status = 500;
+    ctx.body = { success: false, message: "删除房间失败" };
+  }
+});
+
+router.delete("/api/all/rooms", async (ctx) => {
+  try {
+    await roomService.clearRooms();
+
+    ctx.body = {
+      success: true,
+      message: "所有房间删除成功",
+    };
+  } catch (error) {
+    console.error("删除所有房间错误:", error);
+    ctx.status = 500;
+    ctx.body = { success: false, message: "删除所有房间失败" };
+  }
+});
+
 // 应用路由中间件
 app.use(router.routes()).use(router.allowedMethods());
 
