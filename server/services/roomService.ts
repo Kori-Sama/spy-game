@@ -81,6 +81,7 @@ export async function getRoomById(roomId: string): Promise<GameRoom | null> {
 
   const playersMap: Record<string, Player> = {};
 
+  // 初始化玩家信息
   for (const p of players) {
     playersMap[p.user_id] = {
       id: p.user_id,
@@ -90,6 +91,28 @@ export async function getRoomById(roomId: string): Promise<GameRoom | null> {
       isAlive: Boolean(p.is_alive),
       votedBy: [],
     };
+  }
+
+  // 获取投票信息
+  const votes = await db.all(
+    `
+    SELECT voter_id, target_id 
+    FROM votes 
+    WHERE room_id = ?
+  `,
+    roomId
+  );
+
+  // 处理投票信息
+  for (const vote of votes) {
+    const voter = playersMap[vote.voter_id];
+    const target = playersMap[vote.target_id];
+
+    if (voter && target) {
+      voter.voted = vote.target_id;
+      if (!target.votedBy) target.votedBy = [];
+      target.votedBy.push(vote.voter_id);
+    }
   }
 
   return {
@@ -354,6 +377,7 @@ export async function vote(
   voterId: string,
   targetId: string
 ): Promise<{ room: GameRoom; votes: Record<string, string> }> {
+  const db = getDB();
   const room = await getRoomById(roomId);
 
   if (!room) {
@@ -376,17 +400,48 @@ export async function vote(
     throw new Error("投票目标不存在或已死亡");
   }
 
-  // 记录投票
+  // 检查是否已经投过票
+  const existingVote = await db.get(
+    "SELECT 1 FROM votes WHERE voter_id = ? AND room_id = ?",
+    voterId,
+    roomId
+  );
+
+  if (existingVote) {
+    // 如果已投票，则更新投票
+    await db.run(
+      "UPDATE votes SET target_id = ? WHERE voter_id = ? AND room_id = ?",
+      targetId,
+      voterId,
+      roomId
+    );
+  } else {
+    // 如果未投票，则插入新投票
+    await db.run(
+      "INSERT INTO votes (voter_id, target_id, room_id) VALUES (?, ?, ?)",
+      voterId,
+      targetId,
+      roomId
+    );
+  }
+
+  // 记录内存中的投票信息（为了向后兼容）
   voter.voted = targetId;
   if (!target.votedBy) target.votedBy = [];
+
+  // 移除之前的投票记录（如果有的话）
+  target.votedBy = target.votedBy.filter((id) => id !== voterId);
   target.votedBy.push(voterId);
 
   // 收集所有投票
   const votes: Record<string, string> = {};
-  for (const player of Object.values(room.players)) {
-    if (player.voted) {
-      votes[player.id] = player.voted;
-    }
+  const allVotes = await db.all(
+    "SELECT voter_id, target_id FROM votes WHERE room_id = ?",
+    roomId
+  );
+
+  for (const vote of allVotes) {
+    votes[vote.voter_id] = vote.target_id;
   }
 
   return { room, votes };
@@ -431,7 +486,7 @@ export async function endVote(roomId: string): Promise<{
     if (votes > maxVotes) {
       maxVotes = votes;
       eliminated = playerId;
-    } else if (votes === maxVotes) {
+    } else if (votes === maxVotes && maxVotes > 0) {
       // 如果有平票，则没有人被淘汰
       eliminated = undefined;
     }
@@ -457,7 +512,10 @@ export async function endVote(roomId: string): Promise<{
     }
   }
 
-  // 清空投票记录
+  // 清空数据库中的投票记录
+  await db.run("DELETE FROM votes WHERE room_id = ?", roomId);
+
+  // 清空内存中的投票记录
   for (const player of Object.values(room.players)) {
     player.voted = undefined;
     player.votedBy = [];

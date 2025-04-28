@@ -522,39 +522,36 @@ const Game = () => {
         </div>
       )}
 
-      {isPlaying &&
-        isAlive &&
-        !isHost &&
-        (playerRole === PlayerRole.BAD || playerRole === PlayerRole.BLANK) && (
-          <div className="card">
-            <h2>猜词</h2>
-            <p>如果你认为自己已经知道了好人的词，可以尝试猜测</p>
-            <p style={{ color: "var(--error-color)", fontSize: "12px" }}>
-              注意：猜错会导致你立即出局！
-            </p>
+      {isPlaying && isAlive && !isHost && (
+        <div className="card">
+          <h2>猜词</h2>
+          <p>如果你认为自己已经知道了好人的词，可以尝试猜测</p>
+          <p style={{ color: "var(--error-color)", fontSize: "12px" }}>
+            注意：猜错会导致你立即出局！
+          </p>
 
-            <Form layout="horizontal" style={{ marginTop: "16px" }}>
-              <Form.Item label="猜测词语">
-                <Input
-                  placeholder="请输入你猜测的好人词语"
-                  value={guessWordInput}
-                  onChange={setGuessWordInput}
-                />
-              </Form.Item>
-            </Form>
+          <Form layout="horizontal" style={{ marginTop: "16px" }}>
+            <Form.Item label="猜测词语">
+              <Input
+                placeholder="请输入你猜测的好人词语"
+                value={guessWordInput}
+                onChange={setGuessWordInput}
+              />
+            </Form.Item>
+          </Form>
 
-            <div className="button-group" style={{ justifyContent: "center" }}>
-              <Button
-                color="danger"
-                onClick={handleGuessWord}
-                loading={loading}
-                disabled={loading || !guessWordInput.trim()}
-              >
-                确认猜词
-              </Button>
-            </div>
+          <div className="button-group" style={{ justifyContent: "center" }}>
+            <Button
+              color="danger"
+              onClick={handleGuessWord}
+              loading={loading}
+              disabled={loading || !guessWordInput.trim()}
+            >
+              确认猜词
+            </Button>
           </div>
-        )}
+        </div>
+      )}
 
       {isEnded && (
         <div className="card">

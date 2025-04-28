@@ -50,6 +50,20 @@ export async function initDatabase() {
       );
     `);
 
+    // 创建投票表
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS votes (
+        voter_id TEXT NOT NULL,
+        target_id TEXT NOT NULL,
+        room_id TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (voter_id, room_id),
+        FOREIGN KEY (voter_id) REFERENCES users(id),
+        FOREIGN KEY (target_id) REFERENCES users(id),
+        FOREIGN KEY (room_id) REFERENCES rooms(id)
+      );
+    `);
+
     console.log("Database initialized");
   }
 
